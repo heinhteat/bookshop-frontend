@@ -1,0 +1,54 @@
+<div class="container mt-5" style="max-width: 420px;">
+    <h2>Create Account</h2>
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="name" placeholder="" formControlName="name"
+                [ngClass]="{'is-invalid': f['name'].touched && f['name'].errors}">
+            <label for="name">Full Name:</label>
+            @if (f['name'].touched && f['name'].errors) {
+            <div class="invalid-feedback">Please enter your name (at least 2 characters)</div>
+            }
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="email" placeholder="" formControlName="email"
+                [ngClass]="{'is-invalid': f['email'].touched && f['email'].errors}">
+            <label for="email">E-mail:</label>
+            @if (f['email'].touched && f['email'].errors) {
+            <div class="invalid-feedback">
+                @if (f['email'].errors['required']) {
+                <div>Please enter Email</div>
+                }
+                @if (f['email'].errors['email']) {
+                <div>Please enter the correct Email</div>
+                }
+            </div>
+            }
+        </div>
+        <div class="form-floating mb-1">
+            <input type="password" class="form-control" id="password" placeholder="" formControlName="password"
+                [ngClass]="{'is-invalid': f['password'].touched && f['password'].errors}">
+            <label for="password">Password:</label>
+            @if (f['password'].touched && f['password'].errors) {
+            <div class="invalid-feedback">
+                @if (f['password'].errors['required']) {
+                <div>Please enter Password</div>
+                }
+                @if (f['password'].errors['pattern']) {
+                <div>At least 8 characters, with a letter and a number</div>
+                }
+            </div>
+            }
+        </div>
+        <div class="form-text mb-3">At least 8 characters, with a letter and a number.</div>
+        <div class="form-floating mb-3">
+            <input type="password" class="form-control" id="confirmPassword" placeholder="" formControlName="confirmPassword"
+                [ngClass]="{'is-invalid': f['confirmPassword'].touched && (f['confirmPassword'].errors || registerForm.errors?.['mismatch'])}">
+            <label for="confirmPassword">Confirm Password:</label>
+            @if (f['confirmPassword'].touched && (f['confirmPassword'].errors || registerForm.errors?.['mismatch'])) {
+            <div class="invalid-feedback">Passwords do not match</div>
+            }
+        </div>
+        <button type="submit" class="btn btn-success w-100" [disabled]="registerForm.invalid">Register</button>
+    </form>
+    <p class="text-center mt-3">Already registered? <a routerLink="/login">Sign In</a></p>
+</div>

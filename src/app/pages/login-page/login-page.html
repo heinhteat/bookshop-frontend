@@ -1,0 +1,30 @@
+<div class="container mt-5" style="max-width: 400px;">
+    <h2>Sign In</h2>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="mb-3">
+            <label class="form-label" for="email">Email:</label>
+            <input type="email" class="form-control" id="email" formControlName="email"
+                [ngClass]="{'is-invalid': f['email'].touched && f['email'].errors}">
+            @if (f['email'].touched && f['email'].errors) {
+            <div class="invalid-feedback">
+                @if (f['email'].errors['required']) {
+                <div>Please enter Email</div>
+                }
+                @if (f['email'].errors['email']) {
+                <div>Please enter the correct Email</div>
+                }
+            </div>
+            }
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="password">Password:</label>
+            <input type="password" class="form-control" id="password" formControlName="password"
+                [ngClass]="{'is-invalid': f['password'].touched && f['password'].errors}">
+            @if (f['password'].touched && f['password'].errors) {
+            <div class="invalid-feedback">Please enter Password</div>
+            }
+        </div>
+        <button type="submit" class="btn btn-primary w-100" [disabled]="loginForm.invalid">Login</button>
+    </form>
+    <p class="text-center mt-3">No account? <a routerLink="/register">Register</a></p>
+</div>

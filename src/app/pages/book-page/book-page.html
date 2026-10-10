@@ -1,0 +1,201 @@
+<div class="jumbotron jumbotron-fluid m-3 py-4 rounded">
+  <div class="container">
+    <h1 class="display-6">Books</h1>
+  </div>
+</div>
+
+<div class="row mx-1">
+  <!-- LEFT: book list (full width for customers) -->
+  <div [ngClass]="authService.isStaff() ? 'col-sm-12 col-lg-7' : 'col-12'">
+    <h2>Book Data</h2>
+
+    @if (!authService.isLoggedIn()) {
+    <div class="alert alert-info py-2">Sign in as a customer to add books to your cart.</div>
+    }
+
+    <!-- Search + filter -->
+    <div class="row g-2 mb-3">
+      <div class="col-12 col-md-8">
+        <input type="text" class="form-control" placeholder="Search title, author or ISBN..."
+          (input)="onSearch($any($event.target).value)">
+      </div>
+      <div class="col-12 col-md-4">
+        <select class="form-select" [(ngModel)]="filterGenre" (change)="onFilterChange()">
+          <option value="">All genres</option>
+          @for (c of categories; track c._id) {
+          <option [value]="c.name">{{ c.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle">
+        <thead>
+          <tr>
+            <th scope="col">Cover</th>
+            <th scope="col">Title</th>
+            <th scope="col">Author</th>
+            <th scope="col">Genre</th>
+            <th scope="col">Type</th>
+            <th scope="col">Price</th>
+            <th scope="col">Stock</th>
+            @if (authService.isStaff() || authService.hasRole('customer')) {
+            <th>Manage</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (book of books; track book._id) {
+          <tr>
+            <td>
+              @if (book.image) {
+              <img [src]="book.image" alt="cover" class="cover">
+              }
+            </td>
+            <td>{{ book.title }}<br><small class="text-muted">{{ book.isbn }}</small></td>
+            <td>{{ book.author }}</td>
+            <td>{{ book.genre }}</td>
+            <td><span class="badge" [ngClass]="book.bookType === 'ebook' ? 'bg-info' : 'bg-secondary'">{{ book.bookType }}</span></td>
+            <td class="text-nowrap">
+              {{ finalPrice(book) | currency:'THB':'฿':'1.2-2' }}
+              @if (book.discount > 0) {
+              <br><small class="text-muted"><s>{{ book.price | currency:'THB':'฿':'1.2-2' }}</s></small>
+              <span class="badge bg-danger ms-1">-{{ book.discount }}%</span>
+              }
+            </td>
+            <td [class.text-danger]="book.bookType === 'physical' && book.stock < 5">
+              {{ book.bookType === 'ebook' ? '-' : book.stock }}
+            </td>
+            @if (authService.isStaff()) {
+            <td class="text-nowrap">
+              <button class="btn btn-sm btn-warning" (click)="selectBook(book)">Update</button>
+              <button class="btn btn-sm btn-danger" (click)="deleteBook(book)">Delete</button>
+            </td>
+            } @else if (authService.hasRole('customer')) {
+            <td class="text-nowrap">
+              <button class="btn btn-sm btn-success" (click)="addToCart(book)"
+                [disabled]="book.bookType === 'physical' && book.stock < 1">
+                {{ book.bookType === 'physical' && book.stock < 1 ? 'Sold out' : 'Add to cart' }}
+              </button>
+            </td>
+            }
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="8" class="text-center text-muted">No books found.</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RIGHT: form (owner / inventory manager only) -->
+  @if (authService.isStaff()) {
+  <div class="col-sm-12 col-lg-5">
+    <h2>{{ isEdit ? 'Update Book' : 'Add Book' }}</h2>
+    <form [formGroup]="bookForm" (ngSubmit)="onSubmit()" novalidate>
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="title" placeholder="" formControlName="title"
+          [ngClass]="{'is-invalid': f['title'].touched && f['title'].errors}">
+        <label for="title">Title:</label>
+        @if (f['title'].touched && f['title'].errors) {
+        <div class="invalid-feedback">Please enter Title</div>
+        }
+      </div>
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="author" placeholder="" formControlName="author"
+          [ngClass]="{'is-invalid': f['author'].touched && f['author'].errors}">
+        <label for="author">Author:</label>
+        @if (f['author'].touched && f['author'].errors) {
+        <div class="invalid-feedback">Please enter Author</div>
+        }
+      </div>
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="isbn" placeholder="" formControlName="isbn"
+          [ngClass]="{'is-invalid': f['isbn'].touched && f['isbn'].errors}">
+        <label for="isbn">ISBN:</label>
+        @if (f['isbn'].touched && f['isbn'].errors) {
+        <div class="invalid-feedback">
+          @if (f['isbn'].errors['required']) {
+          <div>Please enter ISBN</div>
+          }
+          @if (f['isbn'].errors['pattern']) {
+          <div>ISBN must be 10-17 digits (dashes allowed)</div>
+          }
+        </div>
+        }
+      </div>
+      <div class="row g-2">
+        <div class="col-12 col-md-6">
+          <div class="form-floating mb-3">
+            <select class="form-select" id="genre" formControlName="genre">
+              <option value="General">General</option>
+              @for (c of categories; track c._id) {
+              <option [value]="c.name">{{ c.name }}</option>
+              }
+            </select>
+            <label for="genre">Genre:</label>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="form-floating mb-3">
+            <select class="form-select" id="bookType" formControlName="bookType">
+              <option value="physical">Physical</option>
+              <option value="ebook">E-book</option>
+            </select>
+            <label for="bookType">Type:</label>
+          </div>
+        </div>
+      </div>
+      <div class="row g-2">
+        <div class="col-12 col-md-4">
+          <div class="form-floating mb-3">
+            <input type="number" step="0.01" class="form-control" id="price" placeholder="" formControlName="price"
+              [ngClass]="{'is-invalid': f['price'].touched && f['price'].errors}">
+            <label for="price">Price (฿):</label>
+            @if (f['price'].touched && f['price'].errors) {
+            <div class="invalid-feedback">Price must be 0 or more</div>
+            }
+          </div>
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="form-floating mb-3">
+            <input type="number" class="form-control" id="stock" placeholder="" formControlName="stock"
+              [ngClass]="{'is-invalid': f['stock'].touched && f['stock'].errors}">
+            <label for="stock">Stock:</label>
+            @if (f['stock'].touched && f['stock'].errors) {
+            <div class="invalid-feedback">Whole number, 0 or more</div>
+            }
+          </div>
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="form-floating mb-3">
+            <input type="number" class="form-control" id="discount" placeholder="" formControlName="discount"
+              [ngClass]="{'is-invalid': f['discount'].touched && f['discount'].errors}">
+            <label for="discount">Discount (%):</label>
+            @if (f['discount'].touched && f['discount'].errors) {
+            <div class="invalid-feedback">Discount must be 0 to 100</div>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="image" placeholder="" formControlName="image"
+          [ngClass]="{'is-invalid': f['image'].touched && f['image'].errors}">
+        <label for="image">Cover image URL (optional):</label>
+        @if (f['image'].touched && f['image'].errors) {
+        <div class="invalid-feedback">URL must start with http:// or https://</div>
+        }
+      </div>
+      <div class="form-floating mb-3">
+        <textarea class="form-control" id="description" placeholder="" style="height: 90px" formControlName="description"></textarea>
+        <label for="description">Description:</label>
+      </div>
+      <button class="btn btn-primary" type="submit" [disabled]="bookForm.invalid">Submit</button>
+      <button class="btn btn-danger ms-1" type="button" (click)="resetForm()">Reset</button>
+    </form>
+  </div>
+  }
+</div>

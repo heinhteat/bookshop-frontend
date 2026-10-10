@@ -1,0 +1,69 @@
+<div id="homeCarousel" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#homeCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+    <button type="button" data-bs-target="#homeCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+    <button type="button" data-bs-target="#homeCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+  </div>
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <div class="slide slide1 d-flex flex-column justify-content-center align-items-center text-center text-white">
+        <h1 class="display-5">Welcome to Sar Oat Book Shop</h1>
+        <p class="lead">Find your next favourite book</p>
+      </div>
+    </div>
+    <div class="carousel-item">
+      <div class="slide slide2 d-flex flex-column justify-content-center align-items-center text-center text-white">
+        <h1 class="display-5">Physical books and E-books</h1>
+        <p class="lead">Search by title, author or ISBN</p>
+      </div>
+    </div>
+    <div class="carousel-item">
+      <div class="slide slide3 d-flex flex-column justify-content-center align-items-center text-center text-white">
+        <h1 class="display-5">Browse by category</h1>
+        <p class="lead">Fiction, technology, science and more</p>
+      </div>
+    </div>
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#homeCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#homeCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+
+<div class="container text-center my-5">
+  <h2>Start shopping</h2>
+  <p class="text-muted">Browse our collection. Register to get your own account.</p>
+  <a class="btn btn-warning btn-lg me-2" routerLink="/books">Browse books</a>
+  <a class="btn btn-outline-dark btn-lg" routerLink="/register">Create account</a>
+</div>
+
+@if (latestBooks.length > 0) {
+<div class="container mb-4">
+  <h3 class="mb-3">New arrivals</h3>
+  <div class="row g-3">
+    @for (book of latestBooks; track book._id) {
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card h-100 shadow-sm">
+        @if (book.image) {
+        <img [src]="book.image" class="card-img-top book-img" alt="cover">
+        }
+        <div class="card-body">
+          <h6 class="card-title">{{ book.title }}</h6>
+          <p class="card-text small text-muted mb-1">{{ book.author }}</p>
+          <p class="card-text mb-0">
+            <strong>{{ finalPrice(book) | currency:'THB':'฿':'1.2-2' }}</strong>
+            @if (book.discount > 0) {
+            <span class="badge bg-danger ms-1">-{{ book.discount }}%</span>
+            }
+          </p>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+</div>
+}

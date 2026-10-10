@@ -1,0 +1,45 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-main">
+  <div class="container-fluid">
+    <a class="navbar-brand logo-text" routerLink="/home">📚 Sar Oat Book Shop</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link text-white" routerLink="/home" routerLinkActive="active">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" routerLink="/books" routerLinkActive="active">Books</a>
+        </li>
+        @if (authService.isStaff()) {
+        <li class="nav-item">
+          <a class="nav-link text-white" routerLink="/categories" routerLinkActive="active">Categories</a>
+        </li>
+        }
+        @if (authService.hasRole('customer')) {
+        <li class="nav-item">
+          <a class="nav-link text-white" routerLink="/cart" routerLinkActive="active">Cart</a>
+        </li>
+        }
+        @if (authService.currentUser()) {
+        <li class="nav-item">
+          <a class="nav-link text-white" routerLink="/orders" routerLinkActive="active">Orders</a>
+        </li>
+        }
+      </ul>
+
+      @if (authService.currentUser(); as user) {
+      <span class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
+        <span class="text-white small">{{ user.name }} ({{ user.role }})</span>
+        <button type="button" class="btn btn-outline-light btn-sm" (click)="signOut()">Sign Out</button>
+      </span>
+      } @else {
+      <span class="d-flex gap-2 mt-2 mt-lg-0">
+        <a role="button" class="btn btn-outline-light btn-sm" routerLink="/register">Register</a>
+        <a role="button" class="btn btn-warning btn-sm" routerLink="/login">Sign In</a>
+      </span>
+      }
+    </div>
+  </div>
+</nav>

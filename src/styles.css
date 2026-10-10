@@ -1,1 +1,16 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global styles */
+body {
+  background-color: #FAF6F0;
+}
+
+/* Active link in the navbar */
+.navbar-nav .nav-link.active,
+.navbar-nav .show > .nav-link {
+  color: #F2C14E !important;
+  background-color: #3B2418 !important;
+  border-radius: 4px;
+}
+
+.jumbotron {
+  background-color: #EAD7C0;
+}

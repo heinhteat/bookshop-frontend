@@ -1,0 +1,6 @@
+.cover {
+    width: 45px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 3px;
+}
